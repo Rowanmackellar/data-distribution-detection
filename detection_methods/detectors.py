@@ -4,12 +4,8 @@ import torch.nn.functional as F
 from sklearn.neighbors import NearestNeighbors
 from sklearn.linear_model import LogisticRegression
 
-
-# ==============================================================================
-# 1. CONFIDENCE-BASED DETECTOR
-# Simplest detector — high softmax entropy = model is uncertain = likely to fail.
+# CONFIDENCE BASED
 # Runs a single forward pass, no extra overhead.
-# ==============================================================================
 
 @torch.no_grad()
 def evaluate_confidence(model, loader, device):
@@ -32,14 +28,10 @@ def evaluate_confidence(model, loader, device):
         all_labels.extend(labels.numpy())
 
     return np.array(all_entropy), np.array(all_preds), np.array(all_labels)
-
-
-# ==============================================================================
-# 2. MONTE CARLO DROPOUT DETECTOR
+    
+# MONTE CARLO DROPOUT
 # Runs N stochastic forward passes with dropout active, averages the softmax
 # probabilities, then computes entropy over the mean distribution.
-# More reliable uncertainty than single-pass confidence.
-# ==============================================================================
 
 def evaluate_mc_dropout(model, loader, device, num_samples=15):
     """
@@ -68,13 +60,10 @@ def evaluate_mc_dropout(model, loader, device, num_samples=15):
 
     return np.array(all_entropy), np.array(all_preds), np.array(all_labels)
 
-
-# ==============================================================================
-# 3. DISTANCE-BASED DETECTOR
+# DISTANCE-BASED
 # Extracts embeddings from the model's penultimate layer, fits a k-NN index on
 # clean training data, then scores test samples by their distance to the k
-# nearest training neighbors. Far from training data = likely OOD = likely fail.
-# ==============================================================================
+# nearest training neighbors; Far from training data = likely OOD = likely fail.
 
 @torch.no_grad()
 def extract_embeddings_and_logits(model, loader, device):
@@ -85,8 +74,8 @@ def extract_embeddings_and_logits(model, loader, device):
     for imgs, labels in loader:
         imgs = imgs.to(device)
         
-        # Modify your ResNetCIFAR model to return both features and logits if possible, 
-        # or capture them via hooks. Assuming your model can return both:
+        # Modify your ResNetCIFAR model to return both features and logits
+        # or captures via hook, assuming both work...
         outputs = model(imgs) 
         embeddings = model.get_embeddings(imgs).cpu().numpy()
         
@@ -109,26 +98,22 @@ def evaluate_distance(model, train_loader, test_loader, device, k=10):
     Returns mean k-NN distance to training set for each test sample.
     High distance = far from training distribution = likely to fail.
     """
-    # 1. Extract everything in a single, unified pass
+    # Extract everything in a single, unified pass
     train_embeddings, _, _ = extract_embeddings_and_logits(model, train_loader, device)
     test_embeddings, test_preds, test_labels = extract_embeddings_and_logits(model, test_loader, device)
 
-    # 2. Compute k-NN distances
+    # Compute k-NN distances
     knn = fit_knn(train_embeddings, k=k)
     distances, _ = knn.kneighbors(test_embeddings)
     mean_distances = distances.mean(axis=1)
 
-    # No second image loop needed anymore!
     return mean_distances, test_preds, test_labels
 
-
-# ==============================================================================
-# 4. OOD DETECTOR
+#  OOD DETECTOR
 # Trains a logistic regression binary classifier on embeddings:
 #   - Clean training samples = label 0 (in-distribution)
 #   - Shifted test samples   = label 1 (out-of-distribution)
 # The classifier's predicted probability of being OOD is the failure score.
-# ==============================================================================
 
 from sklearn.svm import OneClassSVM
 
@@ -154,7 +139,7 @@ def evaluate_ood(model, ood_clf, test_loader, device):
     Scores each test sample based on its distance from the clean distribution.
     Invert score because lower decision function values mean MORE out-of-distribution.
     """
-    # 1. Extract everything in a single, unified pass
+    # Extract everything in a single, unified pass
     test_embeddings, test_preds, test_labels = extract_embeddings_and_logits(model, test_loader, device)
 
     # 2. Compute OOD anomaly scores
