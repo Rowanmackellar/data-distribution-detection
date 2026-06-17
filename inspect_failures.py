@@ -7,7 +7,7 @@ from train import get_device
 from src.models import ResNetCIFAR
 from src.datasets import get_shifted_dataloader
 
-# CIFAR-10 class labels for human-readable plotting
+# CIFAR-10 class labels
 CLASSES = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 @torch.no_grad()
@@ -25,7 +25,7 @@ def find_confident_failures(model, loader, device, num_samples=5):
         confidences = probs.max(axis=1)
         targets = labels.numpy()
         
-        # Look for instances where prediction is wrong, but confidence is high
+        # searches for where prediction is wrong but confidence is high
         for i in range(len(targets)):
             if preds[i] != targets[i]:
                 confident_failures.append({
@@ -35,7 +35,7 @@ def find_confident_failures(model, loader, device, num_samples=5):
                     'conf': confidences[i]
                 })
                 
-    # Sort failures by confidence in descending order (biggest blunders first)
+    # sorts failures by confidence
     confident_failures.sort(key=lambda x: x['conf'], reverse=True)
     return confident_failures[:num_samples]
 
@@ -51,7 +51,7 @@ def plot_failures(failures, save_path="plots/confident_failures.png"):
     for i, item in enumerate(failures):
         # Denormalize image for visualization
         img = item['image'].numpy().transpose((1, 2, 0))
-        # Simple clipping approximation to bring image back to [0,1] range for viewing
+        # clipping approximation for viewing [0,1]
         img = np.clip(img * 0.25 + 0.5, 0, 1) 
         
         axes[i].imshow(img)
@@ -69,19 +69,19 @@ def plot_failures(failures, save_path="plots/confident_failures.png"):
 if __name__ == "__main__":
     device = get_device()
     
-    # 1. Load the model
+    # Load model
     model = ResNetCIFAR().to(device)
     model.load_state_dict(torch.load("models/checkpoints/resnet18_best.pt", map_location=device))
     
-    # 2. Grab a shifted dataloader (let's use blur)
+    # Shifted data loader
     print("Loading blurry shifted data...")
     blur_loader = get_shifted_dataloader(shift_type="blur")
     
-    # 3. Extract the top 5 confident errors
+    # Top 5 confident errors
     print("Analyzing model blunders...")
     top_failures = find_confident_failures(model, blur_loader, device, num_samples=5)
     
-    # 4. Generate the visualization
+    # Generate the visualization
     if top_failures:
         plot_failures(top_failures)
     else:
