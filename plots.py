@@ -19,6 +19,8 @@ def plot_calibration(probs, targets, save_path="plots/calibration.png", dataset_
     bin_accuracies = []
     bin_confidences = []
 
+    # Takes predictions and sorts into 10 distinct "bins", on how confident model was-
+    # and calculates average accuracy
     for low, high in zip(bins[:-1], bins[1:]):
         mask = (confidences >= low) & (confidences < high)
         if mask.sum() > 0:
@@ -28,6 +30,7 @@ def plot_calibration(probs, targets, save_path="plots/calibration.png", dataset_
             bin_accuracies.append(np.nan)
             bin_confidences.append((low + high) / 2)
 
+    # Image formatting
     plt.figure(figsize=(6, 6))
     plt.plot([0, 1], [0, 1], "k--", label="Perfect calibration")
     plt.plot(bin_confidences, bin_accuracies, marker="o", color="blue", label=f"Model ({dataset_name})")
@@ -43,6 +46,7 @@ def plot_calibration(probs, targets, save_path="plots/calibration.png", dataset_
     plt.savefig(save_path)
     plt.close()
 
+# Same idea, bar chart instead of line graph
 def plot_acc_vs_confidence(probs, targets, save_path="plots/acc_vs_conf.png", dataset_name="Data"):
     """Bucket predictions by confidence, plot accuracy per bucket as a bar chart."""
     # Ensure directory exists
@@ -60,6 +64,7 @@ def plot_acc_vs_confidence(probs, targets, save_path="plots/acc_vs_conf.png", da
             accs.append((preds[mask] == targets[mask]).mean())
             bin_centers.append((low + high) / 2)
 
+    # Image formatting
     plt.figure(figsize=(7, 5))
     plt.bar(bin_centers, accs, width=0.08, edgecolor="black", alpha=0.7, label="Model Accuracy")
     plt.plot([0, 1], [0, 1], "r--", label="Perfect Calibration")
