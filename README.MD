@@ -8,7 +8,7 @@ This repository implements and evaluates over four different failure detection p
     ```bash
    python3 -m venv venv
    source venv/bin/activate
-   pip install -r requirements.txt  # Or list torch, scikit-learn, tensorboard.
+   pip install -torch, scikit-learn, tensorboard.
 
 2: train the model;
 
