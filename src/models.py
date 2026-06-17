@@ -12,19 +12,13 @@ class ResNetCIFAR(nn.Module):
         super().__init__()
         self.model = models.resnet18(weights=None)
  
-        # Modify first layer for low-resolution inputs —
-        # default stride=2 + maxpool would over-downsample 32x32 images
+        # Modify first layer for low-resolution inputs, to fit 32x32
         self.model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.model.maxpool = nn.Identity()
  
         self.dropout = nn.Dropout(p=dropout_rate)
         self.model.fc = nn.Linear(512, num_classes)
  
-    # ------------------------------------------------------------------
-    # Internal encoder — single source of truth for the feature pipeline
-    # Both forward() and get_embeddings() call this, so architecture
-    # changes only need to happen here.
-    # ------------------------------------------------------------------
     def _encode(self, x):
         m = self.model
         x = m.relu(m.bn1(m.conv1(x)))
