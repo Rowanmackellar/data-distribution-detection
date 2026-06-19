@@ -29,7 +29,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device):
         correct += (outputs.argmax(1) == labels).sum().item()
     return total_loss / len(loader.dataset), correct / len(loader.dataset)
 
-# Safe-guards & Enviornment
+# Safe-guards & Environment
 if __name__ == "__main__":
     device = get_device()
     writer = SummaryWriter(log_dir="runs/resnet_experiment")
