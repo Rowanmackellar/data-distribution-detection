@@ -39,10 +39,12 @@ Each method scores how likely a prediction is to be wrong. `evaluate.py` turns t
 
 ## Results
 
-| Shift | Confidence | Distance | MC Dropout | OOD (SVM) |
-|-------|-----------|----------|------------|-----------|
-| Blur  | TBD       | TBD      | TBD        | TBD       |
-| Noise | TBD       | TBD      | TBD        | TBD       |
+====================================================================
+Shift           confidence      distance    mc_dropout           ood
+====================================================================
+blur                 0.652         0.581         0.652         0.434
+noise                0.629         0.550         0.630         0.489
+====================================================================
 
 *Run `python evaluate.py` to populate this table with AUROC scores, and commit the generated `plots/calibration_*.png` and `plots/acc_vs_conf_*.png` files so reviewers can see the calibration behavior without re-running training.*
 
