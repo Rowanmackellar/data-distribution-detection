@@ -1,4 +1,5 @@
-This implements and evaluates four failure detection paradigms under two distribution shifts (Gaussian blur and Gaussian noise).
+## Info
+This Repository implements and evaluates four failure detection paradigms under two distribution shifts (Gaussian blur and Gaussian noise).
 ## Setup
 
 1. Create a virtual environment and install dependencies:
