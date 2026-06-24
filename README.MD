@@ -1,4 +1,6 @@
-## Info
+## Data Distribution Detection
+An accentuation of an emergence in AI failures revolving around the constantly changing world of data. But even with countless effort towards helping to track the path of shifting data; the many sophistacated methods aren't even now, an absolute response to this troubling issue.
+
 This Repository implements and evaluates four failure detection paradigms under two distribution shifts (Gaussian blur and Gaussian noise).
 ## Setup
 
