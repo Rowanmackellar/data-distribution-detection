@@ -1,9 +1,4 @@
-## Data Distribution & Model Failure Detection
-
-Most ML models don't fail because they're poorly trained — they fail because the data changes. This project builds a system that detects when a ResNet-18 model is likely to fail due to distribution shift, **before labels are available**, on CIFAR-10.
-
-It implements and evaluates four failure detection paradigms under two distribution shifts (Gaussian blur and Gaussian noise), and asks one question: **can we predict when the model will be wrong?**
-
+This implements and evaluates four failure detection paradigms under two distribution shifts (Gaussian blur and Gaussian noise).
 ## Setup
 
 1. Create a virtual environment and install dependencies:
